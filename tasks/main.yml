@@ -1,0 +1,70 @@
+---
+- name: "Create user {{ java_app_user_name }}"
+  user:
+    name: "{{ java_app_user_name }}"
+
+- name: Copy the ssh keys used for cloning config-data repo
+  import_tasks: "ssh_keys.yml"
+  when: (java_app_ssh_files_dir is defined)
+
+- name: Create directories for application
+  file: 
+    path: "{{ item }}"
+    state: directory 
+    mode: 0755 
+    owner: "{{ java_app_user_name }}"
+    group: "{{ java_app_user_name }}"
+  with_items:
+    - "{{ java_app_home_dir }}"
+    - "/var/log/{{ java_app_name }}"
+    - "{{ java_app_home_dir }}/basedir"
+
+- name: Deploy java jar from artifactory
+  import_tasks: "artifactory.yml"
+  when: (artifactory_url is defined)
+
+- name: Deploy java jar from local FS
+  copy:
+    src: "{{ java_app_artifact_local_path }}"
+    dest: "{{ java_app_home_dir }}/{{ java_app_name }}.new.jar"
+    mode: 0644
+    owner: "{{ java_app_user_name }}"
+    group: "{{ java_app_user_name }}"
+  when: (java_app_artifact_local_path is defined)
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Move the new artifact to main
+  command: mv -f {{ java_app_home_dir }}/{{ java_app_name }}.new.jar {{ java_app_home_dir }}/{{ java_app_name }}.jar
+
+- name: Create start/stop script from template
+  template:
+    src: "start-stop.sh.j2"
+    dest: "{{ java_app_home_dir }}/{{ java_app_name }}.sh"
+    mode: 0755
+    owner: "{{ java_app_user_name }}"
+    group: "{{ java_app_user_name }}"
+
+- name: Create start/stop Systemd unit
+  import_tasks: "systemd.yml"
+
+- name: Copy logback-spring.xml
+  copy:
+    src: "{{ role_path }}/files/logback-spring.xml"
+    dest: "{{ java_app_home_dir }}/logback-spring.xml"
+    mode: 0644
+    owner: "{{ java_app_user_name }}"
+    group: "{{ java_app_user_name }}"
+
+- name: Starting application
+  service:
+    name: "{{ java_app_name }}"
+    enabled: yes
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Wait for application open port
+  wait_for:
+    port: "{{ java_app_port }}"
+    delay: 10
+    timeout: 60
+  when: java_app_wait_for_port_open

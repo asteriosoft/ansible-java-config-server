@@ -1,0 +1,18 @@
+---
+- name: Install lxml python module
+  pip:
+    name:
+      - lxml
+
+- name: Download jar file from artifactory repo "{{ artifactory_repo_name }}"
+  maven_artifact:
+    group_id: "{{ artifactory_group_id }}"
+    artifact_id: "{{ java_app_name }}"
+    repository_url: "{{ artifactory_url }}/artifactory/{{ artifactory_repo_name }}/"
+    dest: "{{ java_app_home_dir }}/{{ java_app_name }}.new.jar"
+    version: "{{ java_app_version }}"
+    username: "{{ artifactory_user }}"
+    password: "{{ artifactory_password }}"
+    mode: 0644
+    owner: "{{ java_app_user_name }}"
+    group: "{{ java_app_user_name }}"

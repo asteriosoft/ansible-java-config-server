@@ -1,0 +1,11 @@
+[Unit]
+Description={{ java_app_name }}
+
+[Service]
+Type=forking
+User={{ java_app_user_name }}
+ExecStart={{ java_app_home_dir }}/{{ java_app_name }}.sh start
+ExecStop={{ java_app_home_dir }}/{{ java_app_name }}.sh stop
+
+[Install]
+WantedBy=multi-user.target

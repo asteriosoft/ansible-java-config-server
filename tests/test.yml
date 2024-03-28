@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  vars:
+    java_app_home_dir: "/opt/test/{{ java_app_name }}"
+    java_app_port: "8011"
+    java_app_xmx: "1024m"
+    java_app_xms: "512m"
+    java_app_wait_for_port_open: false
+    java_app_ssh_files_dir: "{{ playbook_dir }}/ssh-files"
+    java_app_vault:
+      host: "vault"
+      authentication: 
+        aws_iam:
+          iam_role: "iam-role"
+
+  roles:
+    - { role: ../../java-config-server }

@@ -1,0 +1,58 @@
+#!/bin/bash
+SERVICE_NAME="{{ java_app_name }}"
+HOME="{{ java_app_home_dir }}"
+PATH_TO_JAR=${HOME}/${SERVICE_NAME}.jar
+PID=`ps aux | grep {{ java_app_name }}.jar | grep -v grep | awk '{print $2}'`
+DATE=$(date +%Y-%m-%d)
+
+PORT="{{ java_app_port }}"
+
+ARGS="
+-Xmx{{ java_app_xmx }}
+-Xms{{ java_app_xms }}
+-Dserver.port=$PORT
+-Dfile.encoding=UTF-8
+-Dserver.tomcat.uri-encoding=UTF-8
+-Dlogging.file=${SERVICE_NAME}.log
+-Dlogging.config=${HOME}/logback-spring.xml
+-Dlogging.path=/var/log/${SERVICE_NAME}
+-Dlogging.file.name=${SERVICE_NAME}.log
+-Dlogging.file.path=/var/log/${SERVICE_NAME}
+-Dspring.cloud.config.server.git.basedir=${HOME}/basedir
+{% if java_app_vault is defined %}
+-Dspring.cloud.config.server.vault.host={{ java_app_vault.host }}
+-Dspring.cloud.config.server.vault.backend={{ java_app_vault.backend | default("secret") }}
+-Dspring.cloud.config.server.vault.kvVersion={{ java_app_vault.kv_version | default(1) }}
+{% endif %}
+{% if java_app_vault.authentication.approle is defined %}
+-Dspring.cloud.config.server.vault.authentication=APPROLE
+-Dspring.cloud.config.server.vault.app-role.role-id={{ java_app_vault.authentication.approle.role_id }}
+-Dspring.cloud.config.server.vault.app-role.secret-id={{ java_app_vault.authentication.approle.secret_id }}
+{% elif java_app_vault.authentication.aws_iam is defined %}
+-Dspring.cloud.config.server.vault.authentication=AWS_IAM
+-Dspring.cloud.config.server.vault.aws-iam.aws-path={{ java_app_vault.authentication.aws_iam.aws_path | default("aws") }}
+-Dspring.cloud.config.server.vault.aws-iam.role={{ java_app_vault.authentication.aws_iam.iam_role }}
+{% endif %}
+"
+
+case $1 in
+start)
+    echo "Starting $SERVICE_NAME ..."
+    if [ ! -n "$PID" ]; then
+        cd {{ java_app_home_dir }}
+        nohup java -jar $ARGS $PATH_TO_JAR /tmp 1>>/var/log/${SERVICE_NAME}/${SERVICE_NAME}_startup.log 2>&1 &
+        echo "$SERVICE_NAME started ..."
+    else
+        echo "$SERVICE_NAME is already running ..."
+    fi
+    ;;
+stop)
+    if [ -n "$PID" ]; then
+        echo "$SERVICE_NAME stopping ..."
+        kill $PID
+        echo "$SERVICE_NAME stopped ..."
+    else
+        echo "$SERVICE_NAME is not running ..."
+    fi
+    ;;
+esac

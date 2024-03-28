@@ -1,0 +1,18 @@
+---
+- name: "Create use user {{ java_app_user_name }} ssh dir"
+  file:
+    path: "/home/{{ java_app_user_name }}/.ssh"
+    state: directory
+    mode: 0700
+    owner: "{{ java_app_user_name }}"
+    group: "{{ java_app_user_name }}"
+
+- name: Copy the ssh keys used for cloning config-data repo
+  copy:
+    src: "{{ item }}"
+    dest: "/home/{{ java_app_user_name }}/.ssh/{{ item | basename }}"
+    mode: 0600
+    owner: "{{ java_app_user_name }}"
+    group: "{{ java_app_user_name }}"
+  with_fileglob:
+    - "{{ java_app_ssh_files_dir }}/*"
