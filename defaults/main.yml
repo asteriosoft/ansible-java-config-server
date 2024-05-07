@@ -11,13 +11,15 @@ java_app_wait_for_port_open: true
 # Playbook level dir containing ssh keys and config for git clone via ssh connection
 #java_app_ssh_files_dir: "{{ playbook_dir }}/ssh-files"
 
+java_app_artifact_source: "local" # local/artifactory supported
+
 java_app_artifact_local_path: "../artifacts/{{ java_app_name }}.jar"
 
-# artifactory_url: "https://artifactory.foo.bar"
-# artifactory_repo_name: "libs-snapshot-local"
-# artifactory_group_id: "com.foo.bar"
-# artifactory_user: "user"
-# artifactory_password: "password"
+java_app_artifactory_url: "https://artifactory"
+java_app_artifactory_repo_name: "libs-snapshot-local"
+java_app_artifactory_group_id: "com.org.app"
+java_app_artifactory_user: "user"
+java_app_artifactory_password: "password"
 
 # java_app_vault:
 #   host: "vault"

@@ -19,18 +19,18 @@
     - "/var/log/{{ java_app_name }}"
     - "{{ java_app_home_dir }}/basedir"
 
-- name: Deploy java jar from artifactory
+- name: Download java jar from artifactory
   import_tasks: "artifactory.yml"
-  when: (artifactory_url is defined)
+  when: java_app_artifact_source == "artifactory"
 
-- name: Deploy java jar from local FS
+- name: Copy java jar from local FS
   copy:
     src: "{{ java_app_artifact_local_path }}"
     dest: "{{ java_app_home_dir }}/{{ java_app_name }}.new.jar"
     mode: 0644
     owner: "{{ java_app_user_name }}"
     group: "{{ java_app_user_name }}"
-  when: (java_app_artifact_local_path is defined)
+  when: java_app_artifact_source == "local"
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Move the new artifact to main

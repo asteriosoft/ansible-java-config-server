@@ -7,6 +7,7 @@
     java_app_xms: "512m"
     java_app_wait_for_port_open: false
     java_app_ssh_files_dir: "{{ playbook_dir }}/ssh-files"
+    java_app_artifact_source: "artifactory"
     java_app_vault:
       host: "vault"
       authentication: 
