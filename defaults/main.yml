@@ -25,6 +25,8 @@ java_app_artifactory_password: "password"
 #   host: "vault"
 #   backend: "secret"
 #   kv_version: 1
+#   port: 443
+#   scheme: https
 #   authentication: 
 #     approle:
 #       role_id: "00000000-0000-0000-0000-000000000000"

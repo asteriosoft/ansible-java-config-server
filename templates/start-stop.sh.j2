@@ -23,6 +23,8 @@ ARGS="
 -Dspring.cloud.config.server.vault.host={{ java_app_vault.host }}
 -Dspring.cloud.config.server.vault.backend={{ java_app_vault.backend | default("secret") }}
 -Dspring.cloud.config.server.vault.kvVersion={{ java_app_vault.kv_version | default(1) }}
+-Dspring.cloud.config.server.vault.port={{ java_app_vault.port | default(443) }}
+-Dspring.cloud.config.server.vault.scheme={{ java_app_vault.scheme | default("https") }}
 {% endif %}
 {% if java_app_vault.authentication.approle is defined %}
 -Dspring.cloud.config.server.vault.authentication=APPROLE
