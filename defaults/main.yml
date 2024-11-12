@@ -7,7 +7,7 @@ java_app_port: "8010"
 java_app_xmx: "512m"
 java_app_xms: "256m"
 java_app_wait_for_port_open: true
-java_app_wait_for_port_timeout: 60
+java_app_wait_for_port_timeout: "60"
 
 # Playbook level dir containing ssh keys and config for git clone via ssh connection
 #java_app_ssh_files_dir: "{{ playbook_dir }}/ssh-files"
