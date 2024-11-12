@@ -66,5 +66,5 @@
   wait_for:
     port: "{{ java_app_port }}"
     delay: 10
-    timeout: 60
+    timeout: "{{ java_app_wait_for_port_timeout }}"
   when: java_app_wait_for_port_open
